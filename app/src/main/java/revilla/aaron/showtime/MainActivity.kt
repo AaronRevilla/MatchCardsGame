@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (applicationContext as MatchCardGameApplication).component.inject(this)
 
         //initialize view model
         viewModel = ViewModelProvider(this, MainActivityModelFactory(cardsRepository)).get(MainActivityViewModel::class.java)

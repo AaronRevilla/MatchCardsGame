@@ -6,7 +6,7 @@ import revilla.aaron.showtime.network.RestAPI
 import java.io.IOException
 import javax.inject.Inject
 
-class CardsImagesDS(private val api: RestAPI) {
+class CardsImagesDS @Inject constructor(private val api: RestAPI) {
 
     fun getImages(): DataCallback<List<ImagesURL>> {
         try {

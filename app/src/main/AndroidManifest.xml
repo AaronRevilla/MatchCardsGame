@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="revilla.aaron.showtime">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MatchCardGameApplication"
         android:allowBackup="false"

@@ -5,8 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import revilla.aaron.showtime.datasources.CardsImagesDS
 import revilla.aaron.showtime.models.ImagesURL
 import revilla.aaron.showtime.models.Status
+import javax.inject.Inject
 
-class CardsRepository(private val dataSource: CardsImagesDS) {
+class CardsRepository @Inject constructor(private val dataSource: CardsImagesDS) {
 
     suspend fun getImages(): MutableLiveData<List<ImagesURL>>? {
         val result = dataSource.getImages()
@@ -14,7 +15,7 @@ class CardsRepository(private val dataSource: CardsImagesDS) {
             Status.SUCCESS -> {
                 result.data?.let {
                     val cardImagesML = MutableLiveData<List<ImagesURL>>()
-                    cardImagesML.value = it
+                    cardImagesML.postValue(it)
                     return cardImagesML
                 }
             }
