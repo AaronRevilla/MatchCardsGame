@@ -53,4 +53,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.4.2'
     kapt 'org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.4.2'
+    implementation 'com.github.bumptech.glide:glide:4.13.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
 }

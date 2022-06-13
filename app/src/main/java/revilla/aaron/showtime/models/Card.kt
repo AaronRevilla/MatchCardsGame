@@ -14,4 +14,9 @@ class Card(val imgURL: String, val backSideCardImgURL: String) {
         result = 31 * result + backSideCardImgURL.hashCode()
         return result
     }
+
+    //clone this card
+    fun clone(): Card {
+        return Card(imgURL, backSideCardImgURL)
+    }
 }

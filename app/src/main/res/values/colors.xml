@@ -11,4 +11,6 @@
     <color name="green_700">#114e28</color>
     <color name="green_500">#1b673c</color>
     <color name="green_200">#7baf92</color>
+    <color name="gray">#FFDADADA</color>
+    <color name="loader_screen_bg_color">#80111111</color>
 </resources>
