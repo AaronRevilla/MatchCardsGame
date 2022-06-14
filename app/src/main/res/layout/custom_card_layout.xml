@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:elevation="0dp"
+    android:background="@color/gray"
+    android:layout_height="match_parent"
+    android:layout_margin="5dp">
 
     <ImageView
         android:id="@+id/back_part_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@color/gray"
+        android:minWidth="@dimen/game_board_header_cards"
+        android:minHeight="@dimen/game_board_header_cards"
+        android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,7 +24,10 @@
         android:id="@+id/front_part_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@color/gray"
+        android:minWidth="@dimen/game_board_header_cards"
+        android:minHeight="@dimen/game_board_header_cards"
+        android:scaleType="center"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

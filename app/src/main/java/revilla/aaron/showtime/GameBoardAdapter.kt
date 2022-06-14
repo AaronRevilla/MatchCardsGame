@@ -43,7 +43,14 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
             val customCardView = itemView as CustomCardView
             Glide.with(itemView).load(card.backSideCardImgURL).into(customCardView.backPart)
             Glide.with(itemView).load(card.imgURL).into(customCardView.frontPart)
-            itemView.setOnClickListener(this)
+            if(card.isFrontSideUp)
+                customCardView.flipCard()
+//            else
+//                customCardView.flipCardBackSideUp()
+            if(!card.hasFoundThePair)
+                customCardView.setOnClickListener(this)
+            else
+                customCardView.setOnClickListener(null)
         }
 
         override fun onClick(view: View?) {

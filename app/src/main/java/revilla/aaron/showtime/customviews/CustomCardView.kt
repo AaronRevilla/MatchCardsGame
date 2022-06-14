@@ -48,6 +48,20 @@ class CustomCardView: CardView {
         }
     }
 
+    @Synchronized
+    fun flipCardBackSideDown(): Throwable? {
+        if(backPart.isVisible)
+            return flipSides(backPart, frontPart)
+        return null
+    }
+
+    @Synchronized
+    fun flipCardBackSideUp(): Throwable? {
+        if(frontPart.isVisible)
+            return flipSides(frontPart, backPart)
+        return null
+    }
+
     private fun flipSides(sideA: View?, sideB: View?): Throwable? {
         try {
             sideA?.visibility = View.VISIBLE

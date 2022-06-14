@@ -58,20 +58,20 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
         })
 
         viewModel.cardsObserver.observe(this, Observer {
-//            binding.gameBoardRv.adapter =
-//                GameBoardAdapter(it, clickListener = this)
+            viewModel.printBoard(it)
             (binding.gameBoardRv.adapter as? GameBoardAdapter)?.updateCardList(it)
         })
 
         viewModel.gameObserver.observe(this, Observer {
-
+            binding.winsValue.text = "${it.wins}"
+            binding.flipsValue.text = "${it.flips}"
         })
     }
 
     private fun setupRecyclerView() {
         binding.gameBoardRv.adapter =
             GameBoardAdapter(viewModel.cardsObserver.value ?: listOf(), clickListener = this)
-        binding.gameBoardRv.layoutManager = GridLayoutManager(this, 2, RecyclerView.VERTICAL, false)
+        binding.gameBoardRv.layoutManager = GridLayoutManager(this, viewModel.getGridNumber(), RecyclerView.VERTICAL, false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -103,5 +103,6 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
     override fun onItemClick(view: View?, position: Int) {
         val cardView = view as? CustomCardView
         cardView?.flipCard()
+        viewModel.cardFliped(position)
     }
 }

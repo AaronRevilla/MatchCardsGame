@@ -39,45 +39,114 @@
             android:id="@+id/game_board_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="center|top"
             android:orientation="horizontal"
             android:weightSum="3">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="@dimen/game_board_header_cards"
-                android:layout_height="@dimen/game_board_header_cards"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp">
 
-                <ImageView
-                    android:id="@+id/display_wins"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/black" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/wins_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/game_wins"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/wins_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:text="@string/game_loading"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/display_wins"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@color/black" />-->
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="@dimen/game_board_header_cards"
-                android:layout_height="@dimen/game_board_header_cards"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp">
 
-                <ImageView
-                    android:id="@+id/display_flips"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/black" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/flips_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/game_flips"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/flips_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:text="@string/game_loading"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/display_flips"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@color/black" />-->
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="@dimen/game_board_header_cards"
-                android:layout_height="@dimen/game_board_header_cards">
+                android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/display_retry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/black" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/player_number_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/game_flips"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/player_number_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:text="@string/game_loading"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/display_retry"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@color/black" />-->
 
             </androidx.cardview.widget.CardView>
 
@@ -86,9 +155,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/game_board_rv"
             android:layout_width="match_parent"
-            android:layout_marginTop="10dp"
+            android:layout_height="match_parent"
             android:layout_below="@+id/game_board_header"
-            android:layout_height="match_parent">
+            android:layout_marginTop="10dp">
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -96,20 +165,20 @@
 
     <RelativeLayout
         android:id="@+id/loader_indicator"
-        android:gravity="center"
-        android:background="@color/loader_screen_bg_color"
         android:layout_width="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="match_parent"
+        android:background="@color/loader_screen_bg_color"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_height="match_parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:layout_width="wrap_content"
-            app:indicatorColor="@color/green_200"
             android:layout_height="wrap_content"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            app:indicatorColor="@color/green_200" />
 
     </RelativeLayout>
 

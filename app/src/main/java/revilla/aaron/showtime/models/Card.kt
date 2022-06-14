@@ -2,9 +2,12 @@ package revilla.aaron.showtime.models
 
 class Card(val imgURL: String, val backSideCardImgURL: String) {
 
+    var isFrontSideUp = false
+    var hasFoundThePair = false
+
     override fun equals(other: Any?): Boolean {
         if(other is Card) {
-            return this.imgURL.equals(other.imgURL)
+            return imgURL == other.imgURL
         }
         return false
     }
@@ -18,5 +21,12 @@ class Card(val imgURL: String, val backSideCardImgURL: String) {
     //clone this card
     fun clone(): Card {
         return Card(imgURL, backSideCardImgURL)
+    }
+
+    override fun toString(): String {
+        if (isFrontSideUp)
+            return "1"
+        else
+            return "0"
     }
 }
