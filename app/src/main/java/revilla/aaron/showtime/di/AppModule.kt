@@ -5,9 +5,11 @@ import dagger.Module
 import dagger.Provides
 import revilla.aaron.showtime.MatchCardGameApplication
 import revilla.aaron.showtime.datasources.CardsImagesDS
+import revilla.aaron.showtime.datasources.GameScoreDS
 import revilla.aaron.showtime.network.RestAPIImplementation
 import revilla.aaron.showtime.network.RestAPI
 import revilla.aaron.showtime.repositories.CardsRepository
+import revilla.aaron.showtime.repositories.GameScoreRepository
 import javax.inject.Singleton
 
 @Module
@@ -37,5 +39,16 @@ open class AppModule(private val application: MatchCardGameApplication) {
         return CardsRepository(provideCardsDS())
     }
 
+    @Provides
+    @Singleton
+    open fun provideGameScoreDS(): GameScoreDS {
+        return GameScoreDS(provideApplicationContext())
+    }
+
+    @Provides
+    @Singleton
+    open fun provideGameScoreRepository(): GameScoreRepository {
+        return GameScoreRepository(provideGameScoreDS())
+    }
 
 }

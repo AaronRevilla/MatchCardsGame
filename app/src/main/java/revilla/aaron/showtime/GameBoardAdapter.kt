@@ -9,10 +9,10 @@ import com.bumptech.glide.Glide
 import revilla.aaron.showtime.customviews.CustomCardView
 import revilla.aaron.showtime.models.Card
 
-class GameBoardAdapter(cardDeck: List<Card> = listOf(), val clickListener: ItemClickListener) :
+class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListener) :
     Adapter<GameBoardAdapter.GameBoardViewHolder>() {
 
-    private val list = cardDeck.toMutableList()
+    private var list = cardDeck
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameBoardViewHolder {
 //        val view =
@@ -26,18 +26,24 @@ class GameBoardAdapter(cardDeck: List<Card> = listOf(), val clickListener: ItemC
     }
 
     override fun onBindViewHolder(holder: GameBoardViewHolder, position: Int) {
-        val card = list[position]
+        val card = list.get(position)
         holder.bind(card)
     }
 
     override fun getItemCount(): Int = list.size
 
+    fun updateCardList(updatedList: List<Card>) {
+        list = updatedList
+        notifyDataSetChanged()
+    }
+
     inner class GameBoardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
         fun bind(card: Card) {
             val customCardView = itemView as CustomCardView
-            Glide.with(itemView.context).load(card.backSideCardImgURL).into(customCardView.backPart)
-            Glide.with(itemView.context).load(card.imgURL).into(customCardView.frontPart)
+            Glide.with(itemView).load(card.backSideCardImgURL).into(customCardView.backPart)
+            Glide.with(itemView).load(card.imgURL).into(customCardView.frontPart)
+            itemView.setOnClickListener(this)
         }
 
         override fun onClick(view: View?) {

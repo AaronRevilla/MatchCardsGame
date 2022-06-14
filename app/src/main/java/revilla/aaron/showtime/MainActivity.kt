@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import revilla.aaron.showtime.customviews.CustomCardView
 import revilla.aaron.showtime.databinding.ActivityMainBinding
 import revilla.aaron.showtime.repositories.CardsRepository
+import revilla.aaron.showtime.repositories.GameScoreRepository
 import revilla.aaron.showtime.viewmodels.MainActivityModelFactory
 import revilla.aaron.showtime.viewmodels.MainActivityViewModel
 import javax.inject.Inject
@@ -26,19 +27,28 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
     @Inject
     lateinit var cardsRepository: CardsRepository
 
+    @Inject
+    lateinit var gameScoreRepository: GameScoreRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as MatchCardGameApplication).component.inject(this)
 
         //initialize view model
-        viewModel = ViewModelProvider(this, MainActivityModelFactory(cardsRepository)).get(
+        viewModel = ViewModelProvider(
+            this,
+            MainActivityModelFactory(cardsRepository, gameScoreRepository)
+        ).get(
             MainActivityViewModel::class.java
         )
 
+        //initialize view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
+
+        //Setup the Recycler View
+        setupRecyclerView()
 
         //Initialize observers
         viewModel.loadingObserver.observe(this, Observer { isLoading ->
@@ -47,13 +57,14 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
             } ?: kotlin.run { showLoadingScreen(false) }
         })
 
-        //Initialize the Recycler View
-        setupRecyclerView()
-
         viewModel.cardsObserver.observe(this, Observer {
-            binding.gameBoardRv.adapter =
-                GameBoardAdapter(it, clickListener = this)
-            //binding.gameBoardRv.adapter?.notifyDataSetChanged()
+//            binding.gameBoardRv.adapter =
+//                GameBoardAdapter(it, clickListener = this)
+            (binding.gameBoardRv.adapter as? GameBoardAdapter)?.updateCardList(it)
+        })
+
+        viewModel.gameObserver.observe(this, Observer {
+
         })
     }
 
