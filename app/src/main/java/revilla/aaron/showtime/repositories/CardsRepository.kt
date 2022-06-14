@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import revilla.aaron.showtime.datasources.CardsImagesDS
+import revilla.aaron.showtime.models.DataCallback
 import revilla.aaron.showtime.models.ImagesURL
 import revilla.aaron.showtime.models.Status
 import javax.inject.Inject
@@ -20,14 +21,12 @@ class CardsRepository @Inject constructor(
     private var inMemoryCards: List<ImagesURL>? = null
 
 
-    suspend fun getImages(coroutineDispatcher: CoroutineDispatcher): MutableLiveData<List<ImagesURL>>? {
+    suspend fun getImages(): DataCallback<List<ImagesURL>?> {
         val result = withContext(ioDispatcher) {
             if(inMemoryCards.isNullOrEmpty())
-                fetchImagesFromRemoteDS(coroutineDispatcher)
+                fetchImagesFromRemoteDS()
             else {
-                val cardImagesML = MutableLiveData<List<ImagesURL>>()
-                cardImagesML.postValue(inMemoryCards)
-                cardImagesML
+                DataCallback.success(inMemoryCards)
             }
         }
         return result
@@ -36,24 +35,23 @@ class CardsRepository @Inject constructor(
     /*
     * Function to fetch the cards images from the remote data source
     * */
-    private fun fetchImagesFromRemoteDS(coroutineDispatcher: CoroutineDispatcher): MutableLiveData<List<ImagesURL>>? {
+    private fun fetchImagesFromRemoteDS(): DataCallback<List<ImagesURL>?>{
         val result = dataSource.getImages()
+        var cardImagesML: DataCallback<List<ImagesURL>?> = DataCallback.error("Unexpected Error", null)
         when (result.status) {
             Status.SUCCESS -> {
                 result.data?.let {
                     inMemoryCards = it
-                    val cardImagesML = MutableLiveData<List<ImagesURL>>()
-                    cardImagesML.postValue(inMemoryCards)
-                    return cardImagesML
+                    cardImagesML = DataCallback.success(it)
                 }
             }
             Status.ERROR -> {
-                return null
+                cardImagesML = DataCallback.error(result.message, null)
             }
             else -> {
-                return null
+                cardImagesML = DataCallback.error(result.message, null)
             }
         }
-        return null
+        return cardImagesML
     }
 }

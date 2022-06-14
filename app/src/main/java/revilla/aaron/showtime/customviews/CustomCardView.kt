@@ -42,24 +42,23 @@ class CustomCardView: CardView {
     @Synchronized
     fun flipCard(): Throwable? {
         if(frontPart.isVisible) {
-            return flipSides(backPart, frontPart)
+            showFrontSide(false)
+            //return flipSides(backPart, frontPart)
         } else {
-            return flipSides(frontPart, backPart)
+            showFrontSide(true)
+            //return flipSides(frontPart, backPart)
         }
-    }
-
-    @Synchronized
-    fun flipCardBackSideDown(): Throwable? {
-        if(backPart.isVisible)
-            return flipSides(backPart, frontPart)
         return null
     }
 
-    @Synchronized
-    fun flipCardBackSideUp(): Throwable? {
-        if(frontPart.isVisible)
-            return flipSides(frontPart, backPart)
-        return null
+    private fun showFrontSide(show: Boolean) {
+        if(show) {
+            frontPart.visibility = View.VISIBLE
+            backPart.visibility = View.INVISIBLE
+        } else {
+            frontPart.visibility = View.INVISIBLE
+            backPart.visibility = View.VISIBLE
+        }
     }
 
     private fun flipSides(sideA: View?, sideB: View?): Throwable? {

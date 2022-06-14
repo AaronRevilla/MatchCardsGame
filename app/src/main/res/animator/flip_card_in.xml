@@ -7,7 +7,7 @@
         android:valueTo="0.0" />
 
     <objectAnimator
-        android:duration="1500"
+        android:duration="1000"
         android:propertyName="rotationY"
         android:repeatMode="reverse"
         android:valueFrom="-180"

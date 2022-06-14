@@ -9,15 +9,15 @@ import javax.inject.Inject
 class CardsImagesDS @Inject constructor(private val api: RestAPI) {
 
     fun getImages(): DataCallback<List<ImagesURL>> {
-        try {
+        return try {
             val response = api.getCardsImages().execute()
             if (response.isSuccessful) {
-                return DataCallback.success(response.body()?.images)
+                DataCallback.success(response.body()?.images)
             } else {
-                return DataCallback.error(IOException("Error getting the images").toString(), null)
+                DataCallback.error(IOException("Error getting the images").toString(), null)
             }
         } catch (e: Throwable) {
-            return DataCallback.error(IOException("Error getting the images", e).toString(), null)
+            DataCallback.error(IOException("Error getting the images", e).toString(), null)
         }
     }
 }

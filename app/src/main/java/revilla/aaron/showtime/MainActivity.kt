@@ -1,12 +1,17 @@
 package revilla.aaron.showtime
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Looper
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.GridLayout
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -57,8 +62,7 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
             } ?: kotlin.run { showLoadingScreen(false) }
         })
 
-        viewModel.cardsObserver.observe(this, Observer {
-            viewModel.printBoard(it)
+        viewModel.cardBoardObserver.observe(this, Observer {
             (binding.gameBoardRv.adapter as? GameBoardAdapter)?.updateCardList(it)
         })
 
@@ -66,11 +70,39 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
             binding.winsValue.text = "${it.wins}"
             binding.flipsValue.text = "${it.flips}"
         })
+
+        viewModel.cardObserver.observe(this, Observer { responseList ->
+            for (currentCard in responseList) {
+                val position = currentCard.first
+                val card = currentCard.second
+                Log.d("Aaron flip method", "$position - hasFoundThePair=${card.hasFoundThePair}, isFrontSideUp=${card.isFrontSideUp} : ${card.imgURL}")
+                val viewHolder = binding.gameBoardRv.findViewHolderForAdapterPosition(position)
+                runOnUiThread {
+                    viewHolder?.let {
+                        if(!card.isFrontSideUp) {
+                            (it.itemView as CustomCardView).flipCard()
+                            binding.gameBoardRv.scheduleLayoutAnimation()
+                        }
+                        if(card.hasFoundThePair)
+                            it.itemView.setOnClickListener(null)
+                    }
+                }
+            }
+        })
+
+        viewModel.messagesObservable.observe(this, Observer {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+        })
+
+        binding.playAgain.isEnabled = false
+        binding.playAgain.setOnClickListener {
+            viewModel.playAgain()
+        }
     }
 
     private fun setupRecyclerView() {
         binding.gameBoardRv.adapter =
-            GameBoardAdapter(viewModel.cardsObserver.value ?: listOf(), clickListener = this)
+            GameBoardAdapter(viewModel.cardBoardObserver.value ?: listOf(), clickListener = this)
         binding.gameBoardRv.layoutManager = GridLayoutManager(this, viewModel.getGridNumber(), RecyclerView.VERTICAL, false)
     }
 
@@ -103,6 +135,41 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
     override fun onItemClick(view: View?, position: Int) {
         val cardView = view as? CustomCardView
         cardView?.flipCard()
-        viewModel.cardFliped(position)
+        viewModel.cardFliped(position, Looper.getMainLooper())
+    }
+
+    private fun isNetworkConnected(): Boolean {
+        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+        return connectivityManager?.activeNetworkInfo != null && connectivityManager.activeNetworkInfo!!.isConnected
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        var result = false
+        val connectivityManager =
+            applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.run {
+                connectivityManager.activeNetworkInfo?.run {
+                    result = when (type) {
+                        ConnectivityManager.TYPE_WIFI -> true
+                        ConnectivityManager.TYPE_MOBILE -> true
+                        ConnectivityManager.TYPE_ETHERNET -> true
+                        else -> false
+                    }
+
+                }
+            }
+        }
+        return result
     }
 }

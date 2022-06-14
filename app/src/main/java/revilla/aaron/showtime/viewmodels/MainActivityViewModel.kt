@@ -1,5 +1,7 @@
 package revilla.aaron.showtime.viewmodels
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,12 +13,15 @@ import kotlinx.coroutines.withContext
 import revilla.aaron.showtime.models.Card
 import revilla.aaron.showtime.models.Game
 import revilla.aaron.showtime.models.ImagesURL
+import revilla.aaron.showtime.models.Status
 import revilla.aaron.showtime.repositories.CardsRepository
 import revilla.aaron.showtime.repositories.GameScoreRepository
-import java.text.FieldPosition
-import java.util.concurrent.atomic.AtomicBoolean
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.thread
 import kotlin.random.Random
+
 
 class MainActivityViewModel(
     private val cardsRepository: CardsRepository,
@@ -28,8 +33,12 @@ class MainActivityViewModel(
     val loadingObserver: LiveData<Boolean?> = mLoadingObserver
 
     //Card Observable
-    private val mCardsOberver = MutableLiveData<List<Card>>()
-    var cardsObserver: LiveData<List<Card>> = mCardsOberver
+    private val mCardBoardObserver = MutableLiveData<List<Card>>()
+    var cardBoardObserver: LiveData<List<Card>> = mCardBoardObserver
+
+    //Card Observable
+    private val mCardObserver = MutableLiveData<List<Pair<Int, Card>>>()
+    var cardObserver: LiveData<List<Pair<Int, Card>>> = mCardObserver
 
     //Game Observable
     private val mGameOberver = MutableLiveData<Game>()
@@ -38,6 +47,10 @@ class MainActivityViewModel(
     //Finish the Game Observable
     private val mGameIsOver = MutableLiveData<Boolean>()
     var gameIsOverObserver: LiveData<Boolean> = mGameIsOver
+
+    //Messages Observable
+    private val mMessages = MutableLiveData<String>()
+    var messagesObservable: LiveData<String> = mMessages
 
     //Game constants
     private val pairsOfCards = 8
@@ -50,8 +63,12 @@ class MainActivityViewModel(
     * */
     init {
         viewModelScope.launch {
-            loadGame()
-            loadImages()
+            if (isInternetAvailable()) {
+                loadGame()
+                loadImages()
+            } else {
+                mMessages.postValue("Looks like you don't have an Internet Connection, please connect and try again")
+            }
         }
     }
 
@@ -67,17 +84,34 @@ class MainActivityViewModel(
     }
 
     /*
+   * Function to save the current state of the game
+   * */
+    fun saveGame() {
+        gameObserver.value?.let {
+            gameScoreRepository.saveGame(it)
+        }
+    }
+
+    /*
      * Function to fetch the images from the images repo
      */
     private suspend fun loadImages() {
         showLoadingScreen(true)
-        cardsRepository.getImages(Dispatchers.IO)?.let { mutableList ->
-            getGameCards(mutableList.value)?.let {
-                mCardsOberver.postValue(it.toList())
-                showLoadingScreen(false)
-            } ?: kotlin.run {
-                //throw error
-                showLoadingScreen(false)
+        cardsRepository.getImages()?.let { result ->
+            when(result.status) {
+                Status.SUCCESS -> {
+                    getGameCards(result.data)?.let {
+                        mCardBoardObserver.postValue(it.toList())
+                        showLoadingScreen(false)
+                    } ?: kotlin.run {
+                        //throw error
+                        showLoadingScreen(false)
+                    }
+                }
+                else -> {
+                    showLoadingScreen(false)
+                    mMessages.postValue(result.message ?: "Unexpected Error loading the game cards")
+                }
             }
         }
     }
@@ -141,51 +175,70 @@ class MainActivityViewModel(
 
     /*
     * Function with the game rules
+    * Delay the logic so that the user can see the second flipped card
     * */
-    fun cardFliped(position: Int) {
-        cardsObserver.value?.let { currentCardBoard ->
-            val flipedCard = currentCardBoard[position]
-            currentCardBoard.find { findCard ->
-                //Look up for a card which front side is up and hasn't have a pair yet
-                findCard.isFrontSideUp == true && findCard.hasFoundThePair == false
-            }?.let { foundedCard ->
-                //has found the pair
-                if (foundedCard.equals(flipedCard)) {
-                    //keep cards flipped up
-                    flipedCard.hasFoundThePair = true
-                    foundedCard.hasFoundThePair = true
-                } else {
-                    //user didnt found the pair, flip both cards over
-                    foundedCard.isFrontSideUp = false
-                    flipedCard.isFrontSideUp = false
-                    //increment tries count
-                    gameObserver.value?.let { currentGame ->
-                        currentGame.flips++
-                        mGameOberver.postValue(currentGame)
+    fun cardFliped(position: Int, looper: Looper) {
+        Handler(looper).postDelayed({
+            cardBoardObserver.value?.let { currentCardBoard ->
+                val flipedCard = currentCardBoard[position]
+                currentCardBoard.find { findCard ->
+                    //Look up for a card which front side is up and hasn't have a pair yet
+                    findCard.isFrontSideUp && !findCard.hasFoundThePair
+                }?.let { lastFlippedCard ->
+                    val lastFlippedCardPosition = currentCardBoard.indexOfFirst { findIndexCard ->
+                        findIndexCard.isFrontSideUp && !findIndexCard.hasFoundThePair
                     }
+                    //has found the pair
+                    if (lastFlippedCard.equals(flipedCard)) {
+                        //keep cards flipped up
+                        flipedCard.hasFoundThePair = true
+                        flipedCard.isFrontSideUp = true
+                        lastFlippedCard.hasFoundThePair = true
+                        val arrayListResponse = ArrayList<Pair<Int, Card>>()
+                        arrayListResponse.add(Pair(position, flipedCard))
+                        arrayListResponse.add(Pair(lastFlippedCardPosition, lastFlippedCard))
+                        mCardObserver.postValue(arrayListResponse)
+                        //increment tries count
+                        gameObserver.value?.let { currentGame ->
+                            currentGame.flips++
+                            mGameOberver.postValue(currentGame)
+                        }
+                    } else {
+                        //user didnt found the pair, flip both cards over
+                        flipedCard.isFrontSideUp = false
+                        lastFlippedCard.isFrontSideUp = false
+                        val arrayListResponse = ArrayList<Pair<Int, Card>>()
+                        arrayListResponse.add(Pair(position, flipedCard))
+                        arrayListResponse.add(Pair(lastFlippedCardPosition, lastFlippedCard))
+                        mCardObserver.postValue(arrayListResponse)
+                        //increment tries count
+                        gameObserver.value?.let { currentGame ->
+                            currentGame.flips++
+                            mGameOberver.postValue(currentGame)
+                        }
+                    }
+                } ?: kotlin.run {
+                    //first card of a pair flipped
+                    flipedCard.isFrontSideUp = true
                 }
-            } ?: kotlin.run {
-                //first card of a pair flipped
-                flipedCard.isFrontSideUp = true
-            }
 
-            //check if the user has finished the game
-            currentCardBoard.find {
-                it.isFrontSideUp == false
-            }?.let {
-                mGameIsOver.postValue(false)
-            } ?: kotlin.run {
-                //game is over all cards are flipped
-                gameObserver.value?.let { currentGame ->
-                    currentGame.wins++
-                    mGameOberver.postValue(currentGame)
+                //check if the user has finished the game
+                currentCardBoard.find {
+                    it.isFrontSideUp == false
+                }?.let {
+                    mGameIsOver.postValue(false)
+                } ?: kotlin.run {
+                    //game is over all cards are flipped
+                    gameObserver.value?.let { currentGame ->
+                        currentGame.wins++
+                        mGameOberver.postValue(currentGame)
+                        mMessages.postValue("You Win!!!")
+                        saveGame()
+                    }
+                    mGameIsOver.postValue(true)
                 }
-                mGameIsOver.postValue(true)
             }
-
-            //update the view with the latest changes
-            mCardsOberver.postValue(currentCardBoard)
-        }
+        }, 1000)
     }
 
     fun printBoard(board: List<Card>) {
@@ -196,5 +249,23 @@ class MainActivityViewModel(
             Log.d("Aaron ${colums}", subList.toString())
             idx += colums
         }
+    }
+
+    private suspend fun isInternetAvailable(): Boolean {
+        return withContext(Dispatchers.IO) {
+            var result = false
+            try {
+                val address: InetAddress = InetAddress.getByName("www.google.com")
+                result = !address.equals("")
+            } catch (e: UnknownHostException) {
+                // Log error
+                Log.e("No Internet Connection", e.message, e)
+            }
+            result
+        }
+    }
+
+    fun playAgain() {
+        //TODO
     }
 }
