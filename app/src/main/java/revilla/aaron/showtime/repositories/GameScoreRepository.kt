@@ -8,10 +8,16 @@ class GameScoreRepository(val gameScoreDS: GameScoreDS) {
 
     private val gson = Gson()
 
+    /*
+    * Function to save current state of the scores
+    * */
     fun saveGame(game: Game){
         gameScoreDS.saveGame(convertGameToJSON(game))
     }
 
+    /*
+    * Function to load previously saved game
+    * */
     fun getSavedGame(): Game {
         gameScoreDS.loadGame()?.let {
             return convertJSONGameToObj(it)
@@ -20,6 +26,9 @@ class GameScoreRepository(val gameScoreDS: GameScoreDS) {
         }
     }
 
+    /*
+    * Helper functions to convert to/from JSON
+    * */
     private fun convertGameToJSON(game: Game): String {
         return gson.toJson(game)
     }

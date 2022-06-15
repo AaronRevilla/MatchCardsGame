@@ -60,11 +60,13 @@ class CustomCardView: CardView {
         return null
     }
 
+    @Synchronized
     fun showFrontSide() {
         frontPart.visibility = View.VISIBLE
         backPart.visibility = View.INVISIBLE
     }
 
+    @Synchronized
     fun showBackSide() {
         frontPart.visibility = View.INVISIBLE
         backPart.visibility = View.VISIBLE
@@ -79,16 +81,6 @@ class CustomCardView: CardView {
             .resize(wPixels, hPixels)
             .centerCrop()
             .into(frontPart)
-    }
-
-    private fun showFrontSide(show: Boolean) {
-        if(show) {
-            frontPart.visibility = View.VISIBLE
-            backPart.visibility = View.INVISIBLE
-        } else {
-            frontPart.visibility = View.INVISIBLE
-            backPart.visibility = View.VISIBLE
-        }
     }
 
     private fun flipSides(sideA: View, sideB: View): Throwable? {

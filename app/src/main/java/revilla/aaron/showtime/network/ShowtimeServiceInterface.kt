@@ -8,6 +8,9 @@ import revilla.aaron.showtime.utils.Constants
 
 interface ShowtimeServiceInterface {
 
+    /*
+    * GET Function to load the images from the showtime DS
+    * */
     @GET(Constants.GET_IMAGES_ENDPOINT)
     fun getCardsImages(@HeaderMap headers: Map<String, String>) : Call<GetImagesResponse>
 }

@@ -20,9 +20,6 @@ class CardsRepository @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
-//    private val cardImagesML = MutableLiveData<List<ImagesURL>>()
-//    val cardImagesObserver: LiveData<List<ImagesURL>> = cardImagesML
-//    private var inMemoryCards: List<ImagesURL>? = null
     private val gson = Gson()
 
     /*
@@ -107,12 +104,18 @@ class CardsRepository @Inject constructor(
         localDS.saveCards(convertCardsToJSON(cards))
     }
 
+    /*
+    * Function to load previously saved game
+    * */
     private fun loadLocalGame(): List<Card>? {
         localDS.loadCards()?.let {
             return convertJSONCardsToObj(it).toList()
         } ?: kotlin.run { return null }
     }
 
+    /*
+    * Helper functions to convert to/from JSON
+    * */
     private fun convertCardsToJSON(cards: List<Card>?): String? {
         if(cards.isNullOrEmpty())
             return null

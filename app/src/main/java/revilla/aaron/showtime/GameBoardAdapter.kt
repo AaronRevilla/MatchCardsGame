@@ -43,11 +43,12 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
         fun bind(card: Card) {
             val customCardView = itemView as CustomCardView
             customCardView.setImages(card.imgURL, card.backSideCardImgURL)
-
-            if (card.isFrontSideUp)
+            if (card.isFrontSideUp) {
                 customCardView.showFrontSide()
-            else
+            } else {
                 customCardView.showBackSide()
+            }
+
             if (!card.hasFoundThePair)
                 customCardView.setOnClickListener(this)
             else

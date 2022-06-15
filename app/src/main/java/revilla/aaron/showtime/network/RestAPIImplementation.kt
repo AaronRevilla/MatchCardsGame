@@ -28,6 +28,9 @@ class RestAPIImplementation: RestAPI {
         api = retrofit.create(ShowtimeServiceInterface::class.java)
     }
 
+    /*
+    * Function that builds the network request
+    * */
     override fun getCardsImages(): Call<GetImagesResponse> {
         val headers = HashMap<String, String>()
         headers.put(Constants.VERIFICATION_HEADER, BuildConfig.VERIFICATION_CODE)

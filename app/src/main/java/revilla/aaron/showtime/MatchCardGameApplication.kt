@@ -9,6 +9,9 @@ class MatchCardGameApplication : Application() {
 
     lateinit var component: AppComponent
 
+    /*
+    * Initialize dagger for DI when the project loads
+    * */
     override fun onCreate() {
         super.onCreate()
         component = DaggerAppComponent.builder().appModule(AppModule(this)).build()

@@ -68,7 +68,8 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
         })
 
         viewModel.cardBoardObserver.observe(this, Observer {
-            (binding.gameBoardRv.adapter as? GameBoardAdapter)?.updateCardList(it)
+            binding.gameBoardRv.adapter =
+                GameBoardAdapter(it, clickListener = this)
         })
 
         viewModel.gameObserver.observe(this, Observer {
@@ -111,11 +112,19 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
         }
     }
 
+    /*
+    * When the app goes to the background the game will be save it automatically
+    * When the user resumes the app or open after being killed
+    * it will load the latest state of the game
+    * */
     override fun onPause() {
         super.onPause()
         viewModel.saveGame()
     }
 
+    /*
+    * Set up recycler view
+    * */
     private fun setupRecyclerView() {
         binding.gameBoardRv.adapter =
             GameBoardAdapter(viewModel.cardBoardObserver.value ?: listOf(), clickListener = this)

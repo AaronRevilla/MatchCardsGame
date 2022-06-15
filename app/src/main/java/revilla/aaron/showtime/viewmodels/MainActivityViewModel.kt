@@ -99,6 +99,9 @@ class MainActivityViewModel(
         }
     }
 
+    /*
+    * Function to start a new game
+    * */
     fun newGame() {
         gameObserver.value?.let {
             it.flips = 0
@@ -109,6 +112,9 @@ class MainActivityViewModel(
         playAgainOrLoadGame()
     }
 
+    /*
+    * Function to reset all values saved from previous games
+    * */
     fun resetGame() {
         val newGame = Game()
         newGame.flips = 0
@@ -234,6 +240,10 @@ class MainActivityViewModel(
         }, 1000)
     }
 
+    /*
+    * Function to check if the phone is connected to the internet
+    * Relying on Google service availability
+    * */
     private suspend fun isInternetAvailable(): Boolean {
         return withContext(Dispatchers.IO) {
             var result = false

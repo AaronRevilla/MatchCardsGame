@@ -1,5 +1,8 @@
 package revilla.aaron.showtime.utils
 
+/*
+* Constant class that contains constant values for the project
+* */
 class Constants {
 
     companion object {
