@@ -16,12 +16,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
 import revilla.aaron.showtime.customviews.CustomCardView
 import revilla.aaron.showtime.databinding.ActivityMainBinding
 import revilla.aaron.showtime.repositories.CardsRepository
 import revilla.aaron.showtime.repositories.GameScoreRepository
 import revilla.aaron.showtime.viewmodels.MainActivityModelFactory
 import revilla.aaron.showtime.viewmodels.MainActivityViewModel
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
@@ -75,7 +79,6 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
             for (currentCard in responseList) {
                 val position = currentCard.first
                 val card = currentCard.second
-                Log.d("Aaron flip method", "$position - hasFoundThePair=${card.hasFoundThePair}, isFrontSideUp=${card.isFrontSideUp} : ${card.imgURL}")
                 val viewHolder = binding.gameBoardRv.findViewHolderForAdapterPosition(position)
                 runOnUiThread {
                     viewHolder?.let {
@@ -94,10 +97,23 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
 
-        binding.playAgain.isEnabled = false
+        viewModel.gameIsOverObserver.observe(this, Observer { isOver ->
+            if(isOver) {
+                throwKonfetti()
+            }
+        })
+
         binding.playAgain.setOnClickListener {
-            viewModel.playAgain()
+            if(viewModel.gameIsOverObserver.value ?: false)
+                viewModel.newGame()
+            else
+                Toast.makeText(this, "Please finish the current game before starting a new one.", Toast.LENGTH_LONG).show()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.saveGame()
     }
 
     private fun setupRecyclerView() {
@@ -127,7 +143,10 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_reset_game -> {
+                viewModel.resetGame()
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -171,5 +190,18 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
             }
         }
         return result
+    }
+
+    private fun throwKonfetti() {
+        val party = Party(
+            speed = 0f,
+            maxSpeed = 30f,
+            damping = 0.9f,
+            spread = 360,
+            colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+            emitter = Emitter(duration = 2000, TimeUnit.MILLISECONDS).max(100),
+            position = Position.Relative(0.5, 0.3)
+        )
+        binding.konfetti.start(party)
     }
 }

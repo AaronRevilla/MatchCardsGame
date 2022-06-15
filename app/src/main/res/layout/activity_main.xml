@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/game_wins"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/wins_value"
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
                         android:text="@string/game_loading"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                 </LinearLayout>
 
@@ -100,7 +100,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/game_flips"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/flips_value"
@@ -108,7 +108,7 @@
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
                         android:text="@string/game_loading"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                 </LinearLayout>
 
@@ -121,16 +121,16 @@
             </androidx.cardview.widget.CardView>
 
             <ImageButton
-                android:layout_width="@dimen/game_board_header_cards"
                 android:id="@+id/play_again"
-                android:layout_alignTop="@id/flips_card"
-                android:layout_toEndOf="@+id/flips_card"
-                android:layout_alignBottom="@+id/wins_card"
+                android:layout_width="@dimen/game_board_header_cards"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
+                android:layout_alignTop="@id/flips_card"
+                android:layout_alignBottom="@+id/wins_card"
+                android:layout_toEndOf="@+id/flips_card"
+                android:backgroundTint="@color/play_again_bg_color_selector"
+                android:src="@drawable/ic_retry"
                 android:text="@string/game_play_again"
                 android:textAlignment="center"
-                android:src="@drawable/ic_retry"
                 android:textSize="16sp" />
 
         </RelativeLayout>
@@ -164,5 +164,15 @@
             app:indicatorColor="@color/green_200" />
 
     </RelativeLayout>
+
+    <nl.dionsegijn.konfetti.xml.KonfettiView
+        android:id="@+id/konfetti"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

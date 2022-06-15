@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Match Cards</string>
-    <string name="action_settings">Restart</string>
+    <string name="action_settings">Restart from 0</string>
     <string name="game_wins">Wins</string>
-    <string name="game_flips">Tries</string>
+    <string name="game_flips">Attempts</string>
     <string name="game_player">Player %1$d</string>
     <string name="game_loading">Loading…</string>
     <string name="game_play_again">Play Again</string>
