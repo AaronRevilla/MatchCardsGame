@@ -16,10 +16,6 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
     Adapter<GameBoardAdapter.GameBoardViewHolder>() {
 
     private var list = cardDeck
-    private val picasso = Picasso.get()
-    private var wPixels = 0
-    private var hPixels = 0
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameBoardViewHolder {
         val customCardView = CustomCardView(parent.context)
@@ -27,10 +23,6 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        val resources: Resources = parent.resources
-        val cardDimen = resources.getDimension(R.dimen.game_board_header_cards)
-        wPixels = cardDimen.toInt()
-        hPixels = wPixels
         return GameBoardViewHolder(customCardView)
     }
 
@@ -50,14 +42,7 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
         View.OnClickListener {
         fun bind(card: Card) {
             val customCardView = itemView as CustomCardView
-            picasso.load(card.backSideCardImgURL)
-                .resize(wPixels, hPixels)
-                .centerCrop()
-                .into(customCardView.backPart)
-            picasso.load(card.imgURL)
-                .resize(wPixels, hPixels)
-                .centerCrop()
-                .into(customCardView.frontPart)
+            customCardView.setImages(card.imgURL, card.backSideCardImgURL)
 
             if (card.isFrontSideUp)
                 customCardView.showFrontSide()

@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.Menu
@@ -80,16 +81,15 @@ class MainActivity : AppCompatActivity(), GameBoardAdapter.ItemClickListener {
                 val position = currentCard.first
                 val card = currentCard.second
                 val viewHolder = binding.gameBoardRv.findViewHolderForAdapterPosition(position)
-                runOnUiThread {
+                Handler(Looper.getMainLooper()).postDelayed({
                     viewHolder?.let {
                         if(!card.isFrontSideUp) {
                             (it.itemView as CustomCardView).flipCard()
-                            binding.gameBoardRv.scheduleLayoutAnimation()
                         }
                         if(card.hasFoundThePair)
                             it.itemView.setOnClickListener(null)
                     }
-                }
+                }, 700)
             }
         })
 

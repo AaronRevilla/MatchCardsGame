@@ -194,6 +194,7 @@ class MainActivityViewModel(
                             currentGame.flips++
                             mGameOberver.postValue(currentGame)
                         }
+                        mMessages.postValue("Good!")
                     } else {
                         //user didnt found the pair, flip both cards over
                         flipedCard.isFrontSideUp = false
