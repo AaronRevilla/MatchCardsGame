@@ -1,11 +1,14 @@
 package revilla.aaron.showtime
 
+import android.content.res.Resources
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.bumptech.glide.Glide
+import com.squareup.picasso.Picasso
 import revilla.aaron.showtime.customviews.CustomCardView
 import revilla.aaron.showtime.models.Card
 
@@ -13,15 +16,21 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
     Adapter<GameBoardAdapter.GameBoardViewHolder>() {
 
     private var list = cardDeck
+    private val picasso = Picasso.get()
+    private var wPixels = 0
+    private var hPixels = 0
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameBoardViewHolder {
-//        val view =
-//            LayoutInflater.from(parent.context).inflate(R.layout.custom_card_layout, parent, false)
         val customCardView = CustomCardView(parent.context)
         customCardView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        val resources: Resources = parent.resources
+        val cardDimen = resources.getDimension(R.dimen.game_board_header_cards)
+        wPixels = cardDimen.toInt()
+        hPixels = wPixels
         return GameBoardViewHolder(customCardView)
     }
 
@@ -41,13 +50,20 @@ class GameBoardAdapter(cardDeck: List<Card>, val clickListener: ItemClickListene
         View.OnClickListener {
         fun bind(card: Card) {
             val customCardView = itemView as CustomCardView
-            Glide.with(itemView).load(card.backSideCardImgURL).into(customCardView.backPart)
-            Glide.with(itemView).load(card.imgURL).into(customCardView.frontPart)
-            if(card.isFrontSideUp)
-                customCardView.flipCard()
-//            else
-//                customCardView.flipCardBackSideUp()
-            if(!card.hasFoundThePair)
+            picasso.load(card.backSideCardImgURL)
+                .resize(wPixels, hPixels)
+                .centerCrop()
+                .into(customCardView.backPart)
+            picasso.load(card.imgURL)
+                .resize(wPixels, hPixels)
+                .centerCrop()
+                .into(customCardView.frontPart)
+
+            if (card.isFrontSideUp)
+                customCardView.showFrontSide()
+            else
+                customCardView.showBackSide()
+            if (!card.hasFoundThePair)
                 customCardView.setOnClickListener(this)
             else
                 customCardView.setOnClickListener(null)

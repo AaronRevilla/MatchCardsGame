@@ -51,6 +51,16 @@ class CustomCardView: CardView {
         return null
     }
 
+    fun showFrontSide() {
+        frontPart.visibility = View.VISIBLE
+        backPart.visibility = View.INVISIBLE
+    }
+
+    fun showBackSide() {
+        frontPart.visibility = View.INVISIBLE
+        backPart.visibility = View.VISIBLE
+    }
+
     private fun showFrontSide(show: Boolean) {
         if(show) {
             frontPart.visibility = View.VISIBLE

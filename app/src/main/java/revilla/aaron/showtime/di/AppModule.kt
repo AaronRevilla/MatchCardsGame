@@ -36,7 +36,7 @@ open class AppModule(private val application: MatchCardGameApplication) {
     @Provides
     @Singleton
     open fun provideCardsRepository() : CardsRepository {
-        return CardsRepository(provideCardsDS())
+        return CardsRepository(provideCardsDS(), provideGameScoreDS())
     }
 
     @Provides

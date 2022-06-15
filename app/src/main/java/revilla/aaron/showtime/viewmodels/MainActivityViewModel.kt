@@ -12,15 +12,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import revilla.aaron.showtime.models.Card
 import revilla.aaron.showtime.models.Game
-import revilla.aaron.showtime.models.ImagesURL
 import revilla.aaron.showtime.models.Status
 import revilla.aaron.showtime.repositories.CardsRepository
 import revilla.aaron.showtime.repositories.GameScoreRepository
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.concurrent.thread
-import kotlin.random.Random
 
 
 class MainActivityViewModel(
@@ -54,7 +51,6 @@ class MainActivityViewModel(
 
     //Game constants
     private val pairsOfCards = 8
-    private val minNumberImages = pairsOfCards / 2
     private var functionsLoadingInformation = AtomicInteger(0)
 
     /*
@@ -62,6 +58,13 @@ class MainActivityViewModel(
     * and convert those images to a List of Cards objects
     * */
     init {
+        playAgainOrLoadGame()
+    }
+
+    /*
+    * Function to load a game in memory or to star over a new one
+    * */
+    fun playAgainOrLoadGame() {
         viewModelScope.launch {
             if (isInternetAvailable()) {
                 loadGame()
@@ -78,6 +81,7 @@ class MainActivityViewModel(
     private suspend fun loadGame() {
         showLoadingScreen(true)
         gameScoreRepository.getSavedGame().let { savedGame ->
+            mGameIsOver.postValue(savedGame.isGameOver)
             mGameOberver.postValue(savedGame)
             showLoadingScreen(false)
         }
@@ -90,6 +94,29 @@ class MainActivityViewModel(
         gameObserver.value?.let {
             gameScoreRepository.saveGame(it)
         }
+        cardBoardObserver.value?.let {
+            cardsRepository.saveCards(it)
+        }
+    }
+
+    fun newGame() {
+        gameObserver.value?.let {
+            it.flips = 0
+            it.isGameOver = false
+            gameScoreRepository.saveGame(it)
+        }
+        cardsRepository.saveCards(null)
+        playAgainOrLoadGame()
+    }
+
+    fun resetGame() {
+        val newGame = Game()
+        newGame.flips = 0
+        newGame.wins = 0
+        newGame.isGameOver = false
+        gameScoreRepository.saveGame(newGame)
+        cardsRepository.saveCards(null)
+        playAgainOrLoadGame()
     }
 
     /*
@@ -97,11 +124,11 @@ class MainActivityViewModel(
      */
     private suspend fun loadImages() {
         showLoadingScreen(true)
-        cardsRepository.getImages()?.let { result ->
+        cardsRepository.getImages(pairsOfCards)?.let { result ->
             when(result.status) {
                 Status.SUCCESS -> {
-                    getGameCards(result.data)?.let {
-                        mCardBoardObserver.postValue(it.toList())
+                    result.data?.let {
+                        mCardBoardObserver.postValue(it)
                         showLoadingScreen(false)
                     } ?: kotlin.run {
                         //throw error
@@ -114,42 +141,6 @@ class MainActivityViewModel(
                 }
             }
         }
-    }
-
-    /*
-    * Function to convert the image list to a displayable card deck
-    * */
-    private fun getGameCards(imagesURL: List<ImagesURL>?): MutableList<Card>? {
-        if (!imagesURL.isNullOrEmpty() && imagesURL.size >= minNumberImages) {
-            val cards = ArrayList<Card>()
-            val randomPositionList = generateRandomPositionList(pairsOfCards, imagesURL.size - 1)
-            for (randomNumber in randomPositionList) {
-                val newCard =
-                    Card(imagesURL[randomNumber].getImageURL(), imagesURL.last().getImageURL())
-                cards.add(newCard)
-                cards.add(newCard.clone())
-            }
-            val mutableList = cards.toMutableList()
-            mutableList.shuffle()
-            return mutableList
-        } else {
-            //throw error that the game doesnt have enough images
-            return null
-        }
-    }
-
-    /*
-    * Function to generate random card position numbers
-    * */
-    private fun generateRandomPositionList(listSize: Int, randomRange: Int): List<Int> {
-        val randomNumberList = ArrayList<Int>()
-        while (randomNumberList.size < listSize) {
-            val randomPosition = Random.nextInt(0, randomRange)
-            if (!randomNumberList.contains(randomPosition)) {
-                randomNumberList.add(randomPosition)
-            }
-        }
-        return randomNumberList
     }
 
     /*
@@ -231,6 +222,7 @@ class MainActivityViewModel(
                     //game is over all cards are flipped
                     gameObserver.value?.let { currentGame ->
                         currentGame.wins++
+                        currentGame.isGameOver = true
                         mGameOberver.postValue(currentGame)
                         mMessages.postValue("You Win!!!")
                         saveGame()
@@ -239,16 +231,6 @@ class MainActivityViewModel(
                 }
             }
         }, 1000)
-    }
-
-    fun printBoard(board: List<Card>) {
-        var idx = 0
-        val columns = getGridNumber()
-        for (colums in 0 until columns) {
-            val subList = board.subList(idx, columns + idx)
-            Log.d("Aaron ${colums}", subList.toString())
-            idx += colums
-        }
     }
 
     private suspend fun isInternetAvailable(): Boolean {
@@ -263,9 +245,5 @@ class MainActivityViewModel(
             }
             result
         }
-    }
-
-    fun playAgain() {
-        //TODO
     }
 }
